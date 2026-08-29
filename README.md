@@ -1,42 +1,69 @@
-# Agent AST Refactoring Engine
+# @mrkt_frwd/graft
 
-This toolkit provides AI Agents with the power to perform safe, semantic, programmatic refactoring across entire TypeScript and JavaScript codebases without relying on brittle regex matching or manual string manipulation.
+**Semantic TypeScript refactoring an agent can drive.** Renames that follow every
+reference, try/catch wrapping, interface extraction — driven by an AST rather than a
+regex, so a rename cannot half-succeed.
 
-Powered by `ts-morph`, it parses the codebase into an Abstract Syntax Tree (AST), allowing agents to execute complex refactoring commands with guaranteed syntax safety.
-
-## Core Capabilities
-
-1. **`initProject(projectDir)`**: Initializes the AST engine across a specific directory (e.g. `src/**/*.ts`).
-2. **`renameSymbol(project, filePath, oldName, newName)`**: Semantically renames a variable, class, or function, and **automatically updates all imports and references** across the entire project.
-3. **`wrapWithTryCatch(project, filePath, functionName)`**: Dynamically parses a function block and safely wraps its logic in a `try/catch` statement without breaking formatting.
-4. **`extractInterface(project, filePath, className, interfaceName)`**: Analyzes a class, extracts all of its public properties and methods into a clean TypeScript interface, injects the interface into the file, and implements it.
-
-## Quick Start for Agents
-
-Agents can write a quick script utilizing this engine to automate massive refactors:
-
-```javascript
-const path = require('path');
-const { initProject, renameSymbol, extractInterface, wrapWithTryCatch } = require('./index');
-
-// 1. Initialize the AST Engine
-const project = initProject(path.join(__dirname, 'examples/src'));
-
-// 2. Safely rename a function across the codebase
-// This will rename 'addNumbers' and update its import inside 'calculator.ts'
-renameSymbol(project, path.join(__dirname, 'examples/src/math.ts'), 'addNumbers', 'add');
-
-// 3. Extract a clean Interface from a class
-extractInterface(project, path.join(__dirname, 'examples/src/calculator.ts'), 'Calculator', 'ICalculator');
-
-// 4. Safely wrap a risky function in try/catch
-wrapWithTryCatch(project, path.join(__dirname, 'examples/src/calculator.ts'), 'riskyOperation');
-```
-
-## Running Tests
-
-An example `test.js` script is provided to demonstrate the engine. Run:
 ```bash
-npm install
-node test.js
+npx @mrkt_frwd/graft rename ./src ./src/math.ts addNumbers add
 ```
+
+That is a **dry run**. It prints what would change and writes nothing.
+
+## What it is for
+
+The refactors that are safe in an IDE and dangerous in a script. A regex rename of
+`add` hits `addNumbers`, `address`, and a string in a comment; an AST rename hits the
+symbol and its references and nothing else.
+
+## The part that matters
+
+**Nothing is written unless you ask.** Every operation takes `{ dryRun }` and returns
+what it *would* change; the CLI defaults to a dry run and needs `--write` to commit.
+
+A refactoring tool that an agent invokes, which saves to disk the moment it is called,
+gives you nothing to review and nothing to refuse. The cheap check belongs before the
+expensive, hard-to-undo step — which is also why the tests here are mostly about *not*
+writing.
+
+**It tells you what it could not type.** `extractInterface` falls back to `any` for a
+member with no annotation — but it returns every one of them:
+
+```
+  GRAFT  iface  (dry run)
+  ────────────────────────────────────
+  --   untyped, emitted as any: Calculator.label (property)
+  --   untyped, emitted as any: Calculator.describe() (return type)
+  would change examples/src/calculator.ts
+
+  nothing written — re-run with --write
+```
+
+An interface full of silent `any` compiles, looks finished, and documents nothing. Saying
+which members are unknown is the difference between a generated interface you can trust
+and one you have to re-read the class to verify.
+
+## What it refuses
+
+- A symbol that is not there — naming what it looked for (function, variable, class, interface)
+- A rename onto a name that already exists, before anything is written
+- An identifier that is not valid
+- Wrapping a function whose body already begins with `try` — no nested handlers
+- Extracting an interface that already exists
+- A directory with no TypeScript in it, rather than succeeding over nothing
+
+## API
+
+```js
+const { initProject, renameSymbol, wrapWithTryCatch, extractInterface } = require('@mrkt_frwd/graft');
+
+const project = initProject('./src');
+const { changed, preview } = renameSymbol(project, './src/math.ts', 'addNumbers', 'add', { dryRun: true });
+const { untyped }          = extractInterface(project, './src/calculator.ts', 'Calculator', 'ICalculator');
+```
+
+## Requirements
+
+Node 18+. One dependency: `ts-morph`.
+
+MIT © Joe Asare. Built at [Joe Asare Studio](https://joeasare.com).

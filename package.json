@@ -1,12 +1,31 @@
 {
-  "name": "agent-ast-engine",
-  "version": "1.0.0",
-  "description": "An agent toolkit for semantic AST refactoring using ts-morph.",
+  "name": "@mrkt_frwd/graft",
+  "version": "0.1.0",
+  "description": "Semantic TypeScript refactoring an agent can drive \u2014 renames that follow references, try/catch wrapping, interface extraction. Nothing is written unless you ask.",
   "main": "index.js",
   "scripts": {
     "test": "node test.js"
   },
   "dependencies": {
     "ts-morph": "^20.0.0"
-  }
+  },
+  "license": "MIT",
+  "bin": {
+    "graft": "./cli.js"
+  },
+  "files": [
+    "index.js",
+    "cli.js",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrktfrwd/graft.git"
+  },
+  "homepage": "https://github.com/mrktfrwd/graft"
 }
