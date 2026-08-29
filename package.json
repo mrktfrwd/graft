@@ -1,0 +1,12 @@
+{
+  "name": "agent-ast-engine",
+  "version": "1.0.0",
+  "description": "An agent toolkit for semantic AST refactoring using ts-morph.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "ts-morph": "^20.0.0"
+  }
+}
