@@ -1,22 +1,20 @@
 {
   "name": "@mrkt_frwd/graft",
   "version": "0.1.0",
-  "description": "Semantic TypeScript refactoring an agent can drive — renames that follow references, try/catch wrapping, interface extraction. Nothing is written unless you ask.",
-  "main": "index.js",
+  "description": "Semantic TypeScript refactoring an agent can drive \u2014 renames that follow references, try/catch wrapping, interface extraction. Nothing is written unless you ask.",
+  "main": "src/index.js",
   "scripts": {
-    "test": "node test.js"
+    "test": "node src/test.js"
   },
   "dependencies": {
     "ts-morph": "^28.0.0"
   },
   "license": "MIT",
   "bin": {
-    "graft": "./cli.js"
+    "graft": "./src/cli.js"
   },
   "files": [
-    "index.js",
-    "cli.js",
-    "test.js",
+    "src",
     "examples",
     "README.md",
     "CHANGELOG.md",
@@ -32,5 +30,8 @@
   "homepage": "https://github.com/mrktfrwd/graft",
   "publishConfig": {
     "access": "public"
+  },
+  "exports": {
+    ".": "./src/index.js"
   }
 }

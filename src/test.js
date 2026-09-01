@@ -22,7 +22,7 @@ const it = (name, fn) => {
   catch (e) { fails.push(name); console.log(`  FAIL ${name}\n         ${e.message.split('\n')[0]}`); }
 };
 
-const FIXTURES = path.join(__dirname, 'examples', 'src');
+const FIXTURES = path.join(__dirname, '..', 'examples', 'src');
 
 function sandbox() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ast-'));
